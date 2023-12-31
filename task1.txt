@@ -1,0 +1,85 @@
+task1
+center
+init_loss 0.38762493188669195
+no such class 0
+1 tensor(0.3243, device='cuda:0', dtype=torch.float64)
+2 tensor(0.1261, device='cuda:0', dtype=torch.float64)
+3 tensor(0.1382, device='cuda:0', dtype=torch.float64)
+4 tensor(0.6584, device='cuda:0', dtype=torch.float64)
+5 tensor(0.6559, device='cuda:0', dtype=torch.float64)
+6 tensor(0.4025, device='cuda:0', dtype=torch.float64)
+7 tensor(0.4483, device='cuda:0', dtype=torch.float64)
+8 tensor(0.1432, device='cuda:0', dtype=torch.float64)
+9 tensor(0.4000, device='cuda:0', dtype=torch.float64)
+10 tensor(0.5811, device='cuda:0', dtype=torch.float64)
+11 tensor(0.6487, device='cuda:0', dtype=torch.float64)
+12 tensor(0.9432, device='cuda:0', dtype=torch.float64)
+13 tensor(0.8454, device='cuda:0', dtype=torch.float64)
+
+random
+init_loss 0.407049059822827
+no such class 0
+1 tensor(0.3699, device='cuda:0', dtype=torch.float64)
+2 tensor(0.1382, device='cuda:0', dtype=torch.float64)
+3 tensor(0.1423, device='cuda:0', dtype=torch.float64)
+4 tensor(0.7096, device='cuda:0', dtype=torch.float64)
+5 tensor(0.6547, device='cuda:0', dtype=torch.float64)
+6 tensor(0.4233, device='cuda:0', dtype=torch.float64)
+7 tensor(0.5288, device='cuda:0', dtype=torch.float64)
+8 tensor(0.1493, device='cuda:0', dtype=torch.float64)
+9 tensor(0.3988, device='cuda:0', dtype=torch.float64)
+10 tensor(0.6419, device='cuda:0', dtype=torch.float64)
+11 tensor(0.6706, device='cuda:0', dtype=torch.float64)
+12 tensor(0.9482, device='cuda:0', dtype=torch.float64)
+13 tensor(0.8516, device='cuda:0', dtype=torch.float64)
+
+3-random
+init_loss 0.3563288570828944
+no such class 0
+1 tensor(0.2434, device='cuda:0', dtype=torch.float64)
+2 tensor(0.1312, device='cuda:0', dtype=torch.float64)
+3 tensor(0.1381, device='cuda:0', dtype=torch.float64)
+4 tensor(0.6074, device='cuda:0', dtype=torch.float64)
+5 tensor(0.5873, device='cuda:0', dtype=torch.float64)
+6 tensor(0.3502, device='cuda:0', dtype=torch.float64)
+7 tensor(0.3802, device='cuda:0', dtype=torch.float64)
+8 tensor(0.1529, device='cuda:0', dtype=torch.float64)
+9 tensor(0.3801, device='cuda:0', dtype=torch.float64)
+10 tensor(0.6169, device='cuda:0', dtype=torch.float64)
+11 tensor(0.5487, device='cuda:0', dtype=torch.float64)
+12 tensor(0.9228, device='cuda:0', dtype=torch.float64)
+13 tensor(0.7953, device='cuda:0', dtype=torch.float64)
+
+bound_box
+init_loss 0.1351011604725405
+no such class 0
+1 tensor(0.0702, device='cuda:0', dtype=torch.float64)
+2 tensor(0.0763, device='cuda:0', dtype=torch.float64)
+3 tensor(0.0783, device='cuda:0', dtype=torch.float64)
+4 tensor(0.1605, device='cuda:0', dtype=torch.float64)
+5 tensor(0.1545, device='cuda:0', dtype=torch.float64)
+6 tensor(0.0833, device='cuda:0', dtype=torch.float64)
+7 tensor(0.2087, device='cuda:0', dtype=torch.float64)
+8 tensor(0.0980, device='cuda:0', dtype=torch.float64)
+9 tensor(0.0974, device='cuda:0', dtype=torch.float64)
+10 tensor(0.4192, device='cuda:0', dtype=torch.float64)
+11 tensor(0.2451, device='cuda:0', dtype=torch.float64)
+12 tensor(0.3140, device='cuda:0', dtype=torch.float64)
+13 tensor(0.2104, device='cuda:0', dtype=torch.float64)
+
+larger_box
+init_loss 0.17335278587143482
+no such class 0
+1 tensor(0.0864, device='cuda:0', dtype=torch.float64)
+2 tensor(0.0987, device='cuda:0', dtype=torch.float64)
+3 tensor(0.0990, device='cuda:0', dtype=torch.float64)
+4 tensor(0.2643, device='cuda:0', dtype=torch.float64)
+5 tensor(0.2112, device='cuda:0', dtype=torch.float64)
+6 tensor(0.1056, device='cuda:0', dtype=torch.float64)
+7 tensor(0.2003, device='cuda:0', dtype=torch.float64)
+8 tensor(0.1186, device='cuda:0', dtype=torch.float64)
+9 tensor(0.1393, device='cuda:0', dtype=torch.float64)
+10 tensor(0.4536, device='cuda:0', dtype=torch.float64)
+11 tensor(0.2986, device='cuda:0', dtype=torch.float64)
+12 tensor(0.4931, device='cuda:0', dtype=torch.float64)
+13 tensor(0.4055, device='cuda:0', dtype=torch.float64)
