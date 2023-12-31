@@ -1,17 +1,13 @@
 # final
 
 # Last modification: 23/12/06
-import os, time, pickle, random
-import json
+import pickle, random
 import numpy as np
-import nibabel as nib
 
 import matplotlib.pyplot as plt
-import tqdm
 
 import torch
-from torch.utils.data import Dataset, DataLoader
-import torchvision
+from torch.utils.data import Dataset
 
 from segment_anything.utils.transforms import ResizeLongestSide
 
@@ -38,16 +34,8 @@ class DiceLoss(torch.nn.Module):
         self.smooth = smooth
     
     def dice_loss(self, pred, gt):
-        # print(pred.shape, gt.shape)
-        # plt.imshow(pred.cpu().numpy().transpose(1,2,0), cmap="gray")
-        # plt.savefig("pred.png")
-        # plt.imshow(gt.cpu().numpy().transpose(1,2,0), cmap="gray")
-        # plt.savefig("gt.png")
-        # assert 0==1
         intersection = (pred * gt).sum(axis=(1,2))
         union = pred.sum(axis=(1,2)) + gt.sum(axis=(1,2))
-        # print("intersection", intersection)
-        # print("union", union)
         dice_loss = 1 - (2 * intersection + self.smooth) / (union + self.smooth)
         return dice_loss
 
@@ -74,9 +62,7 @@ def pointPromptb(sam_model, kind="center", maskb=None, ori_img_size=(512,512)):
         point_prompt = (pts, labels)
 
     elif kind == "random":
-        # print(maskb.shape)
         coords = [np.where(maskb[i] == 1) for i in range(maskb.shape[0])]
-        # print(coords[0])
         rand_idx = [random.randint(0, len(coords[i][0]) - 1) for i in range(maskb.shape[0])]
         pts = np.stack([[coords[i][1][rand_idx[i]], coords[i][0][rand_idx[i]]] 
                         for i in range(len(coords))]).reshape(maskb.shape[0], -1, 2)

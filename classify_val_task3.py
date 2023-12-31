@@ -3,27 +3,21 @@
 # task3: classify on BTCV
 # Last modification: 23/12/31
 
-import os, time, pickle, datetime
-import json
+import os, time, datetime
 import numpy as np
-import nibabel as nib
 from pathlib import Path
 
-from matplotlib import pyplot as plt
 from tqdm import tqdm
 import random
 random.seed(0)
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.functional import normalize, threshold
 from torch.utils.data import Dataset, DataLoader
-import torchvision
 
-from segment_anything import SamPredictor, sam_model_registry
+from segment_anything import sam_model_registry
 from segment_anything.utils.transforms import ResizeLongestSide
-from utils import BTCVDataset, DiceLoss, pointPromptb, boundBoxPromptb, largerBoxPromptb
+from utils import BTCVDataset, pointPromptb, boundBoxPromptb, largerBoxPromptb
 from modification import MaskDecoderClassifier
 from segment_anything.modeling import TwoWayTransformer
 
@@ -48,14 +42,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 log.info("Using device: {}".format(device))
 
 sam_model = sam_model_registry["vit_h"](checkpoint="sam_vit_h_4b8939.pth")
-
-# sam_model.image_encoder.to(device)
 sam_model.prompt_encoder.to(device)
-# sam_model.mask_decoder.to(device)
-
-# sam_model.image_encoder.eval()
 sam_model.prompt_encoder.eval()
-# sam_model.mask_decoder.train()
 
 """define classifier"""
 check_epoch = 29
@@ -96,7 +84,9 @@ cla_correct = np.zeros(13)
 total = 0
 cla_total = np.zeros(13)
 acc = 0.0
+prompt_type = "center"
 classifier.eval()
+
 for idx, batch in enumerate(tqdm(val_loader)):
     with torch.no_grad():
         # image = batch["image"].squeeze(1).to(device)
@@ -108,7 +98,6 @@ for idx, batch in enumerate(tqdm(val_loader)):
         temp_mask = mask.float()
         temp_mask = transform.apply_image_torch(temp_mask).contiguous()
 
-        prompt_type = "center"        
         pred_mask = None
         point_prompts = None
         box_prompts = None
@@ -120,17 +109,14 @@ for idx, batch in enumerate(tqdm(val_loader)):
             point = point.to(device)
             label = label.to(device)
             point_prompts = (point, label)
-
         elif prompt_type == "bound_box":
             tbox = boundBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
             tbox = tbox.to(device)
             box_prompts = tbox
-
         elif prompt_type == "larger_box":
             lbox = largerBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
             lbox = lbox.to(device)
             box_prompts = lbox
-
         else:
             raise NotImplementedError
         

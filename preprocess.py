@@ -2,20 +2,12 @@
 
 # Last modification: 23/12/10
 
-import os, time, pickle
-import json
+import pickle
 import numpy as np
-import nibabel as nib
-
-import matplotlib as plt
-from tqdm import tqdm
 
 import torch
-from torch.utils.data import Dataset, DataLoader
-import torchvision
 from torchvision import transforms
 
-import monai
 from monai.transforms import (
     AsDiscrete,
     Compose,
@@ -40,8 +32,6 @@ from monai.data import (
 from monai.metrics import DiceMetric
 from monai.config import print_config
 
-import matplotlib.pyplot as plt
-
 # internal modules
 from segment_anything import sam_model_registry
 from segment_anything.utils.transforms import ResizeLongestSide
@@ -53,11 +43,6 @@ datasets = "data/dataset_0.json"
 train_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"], ensure_channel_first=True),
-        # Spacingd(
-        #     keys=["image", "label"],
-        #     pixdim=(1.5, 1.5, 2.0),
-        #     mode=("bilinear", "nearest"),
-        #     ),
         Orientationd(keys=["image", "label"], axcodes="RAS"),
         ScaleIntensityRanged(
             keys=["image"],
@@ -101,11 +86,6 @@ val_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"], ensure_channel_first=True),
         Orientationd(keys=["image", "label"], axcodes="RAS"),
-        # Spacingd(
-        #     keys=["image", "label"],
-        #     pixdim=(1.5, 1.5, 2.0),
-        #     mode=("bilinear", "nearest"),
-        #     ),
         ScaleIntensityRanged(
             keys=["image"],
             a_min=-175,
@@ -148,7 +128,6 @@ for data in val_ds:
             continue
 
         img2d = volume[:, :, :, j]
-        # print(img2d.shape)
         rgb_img = transforms.ToPILImage()(img2d).convert('RGB')
         tens_img = transforms.ToTensor()(rgb_img)
 
@@ -189,7 +168,6 @@ for i in range(len(imgs)):
             "embedding": img_embedding,
             "mask": class_mask,
             "class": cla,
-            # "classmap": label,
         })
 
 mode = "validation"
@@ -255,7 +233,6 @@ for i in range(len(imgs)):
             "embedding": img_embedding,
             "mask": class_mask,
             "class": cla,
-            "classmap": label,
         })
 
 mode = "training"

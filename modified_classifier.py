@@ -1,32 +1,12 @@
 # final
 
-import os, time, pickle, datetime
-import json
-import numpy as np
-import nibabel as nib
-from pathlib import Path
-
-from matplotlib import pyplot as plt
-from tqdm import tqdm
-from typing import List, Tuple, Type
+from typing import Tuple
 
 import torch
 import torch.nn as nn
-from torch.nn.functional import normalize, threshold
-from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
-import torchvision
 
-from segment_anything.utils.transforms import ResizeLongestSide
-from segment_anything import SamPredictor, sam_model_registry
-from segment_anything.modeling.mask_decoder import MaskDecoder
-from utils import BTCVDataset, DiceLoss, pointPromptb, boundBoxPromptb, largerBoxPromptb
 from segment_anything.modeling.common import LayerNorm2d
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class MaskDecoderClassifier(nn.Module):
     def __init__(
@@ -112,7 +92,6 @@ class MaskDecoderClassifier(nn.Module):
 
         # Expand per-image data in batch direction to be per-mask
         src = torch.repeat_interleave(image_embeddings, tokens.shape[0], dim=0)
-        # print(output_tokens.shape[0], image_embeddings.shape, src.shape, sparse_prompt_embeddings.shape, dense_prompt_embeddings.shape)
 
         if use_den_emb:
             src = src + den_emb
@@ -123,7 +102,6 @@ class MaskDecoderClassifier(nn.Module):
         # Run the transformer
         hs, sr = self.transformer(src, pos_src, tokens)
         cla_token_out = hs[:, 0, :]
-        # print(cla_token_out1.shape, cla_token_out2.shape)
 
         # Generate class predictions
         cla_pred = self.cla_prediction_head(cla_token_out)

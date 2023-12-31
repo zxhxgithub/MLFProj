@@ -3,27 +3,21 @@
 # task3: classify on BTCV
 # Last modification: 23/12/31
 
-import os, time, pickle, datetime
-import json
+import os, time, datetime
 import numpy as np
-import nibabel as nib
 from pathlib import Path
 
-from matplotlib import pyplot as plt
 from tqdm import tqdm
 import random
 random.seed(0)
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.functional import normalize, threshold
-from torch.utils.data import Dataset, DataLoader
-import torchvision
+from torch.utils.data import DataLoader
 
-from segment_anything import SamPredictor, sam_model_registry
+from segment_anything import sam_model_registry
 from segment_anything.utils.transforms import ResizeLongestSide
-from utils import BTCVDataset, DiceLoss, pointPromptb, boundBoxPromptb, largerBoxPromptb
+from utils import BTCVDataset, pointPromptb, boundBoxPromptb, largerBoxPromptb
 from modification import MaskDecoderClassifier
 from segment_anything.modeling import TwoWayTransformer
 
@@ -48,20 +42,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 log.info("Using device: {}".format(device))
 
 sam_model = sam_model_registry["vit_h"](checkpoint="sam_vit_h_4b8939.pth")
-
-# print(sam_model.image_encoder.img_size)
-# print(sam_model.prompt_encoder.image_embedding_size)
-# print(sam_model.prompt_encoder.input_image_size)
-# exit()
-
-# sam_model.cuda()
-# sam_model.image_encoder.to(device)
 sam_model.prompt_encoder.to(device)
-# sam_model.mask_decoder.to(device)
-
-# sam_model.image_encoder.eval()
 sam_model.prompt_encoder.eval()
-# sam_model.mask_decoder.train()
 
 """define classifier"""
 cla_embed_dim = 256
@@ -74,6 +56,7 @@ cla_transformer=TwoWayTransformer(
             )
 classifier = MaskDecoderClassifier(transformer_dim=cla_transformer_dim, 
                                    transformer=cla_transformer)
+
 check_epoch = 29
 checkpoint = torch.load("classifier_epoch_{}.pth".format(check_epoch))
 classifier.load_state_dict(state_dict=checkpoint, strict=False)
@@ -92,8 +75,8 @@ val_ds = BTCVDataset(path=val_path, mode="validation")
 val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
 ori_img_size = val_ds.get_img_size()
 
-# optimizer = torch.optim.Adam(classifier.parameters(), lr=LR)
-optimizer = torch.optim.Adam(classifier.den_emb_encoder.parameters(), lr=LR)
+optimizer = torch.optim.Adam(classifier.parameters(), lr=LR)
+# optimizer = torch.optim.Adam(classifier.den_emb_encoder.parameters(), lr=LR)
 
 criterion = nn.CrossEntropyLoss()
 transform = ResizeLongestSide(sam_model.image_encoder.img_size)
@@ -103,6 +86,7 @@ torch.cuda.empty_cache()
 num_epochs = 50
 num_size = 64
 best_acc = 0.0
+prompt_type = "center"
 for epoch in range(num_epochs):
     tr_time = time.time()
     tr_loss_list = []
@@ -117,45 +101,32 @@ for epoch in range(num_epochs):
             mask = batch["mask"].squeeze(1).to(device).contiguous()
             cla = batch["class"].to(device)
             cla -= 1
-            # print(mask.dtype)
+
             temp_mask = mask.float()
             temp_mask = transform.apply_image_torch(temp_mask).contiguous()        
-            # temp_mask = (temp_mask > 0)
-            # print(image.shape, temp_mask.shape)
-            # print(img_embedding.shape)
-            # exit()
-
-            prompt_type = "center"        
+  
             pred_mask = None
             point_prompts = None
             box_prompts = None
 
-            # print(image.shape, mask.shape, cla.shape)
             maskb = mask.squeeze(1)
             assert prompt_type in ["center", "random", "3-random", "bound_box", "larger_box"]
             if prompt_type == "center" or prompt_type == "random" or prompt_type == "3-random":
                 point, label = pointPromptb(sam_model, kind="center", maskb=maskb, ori_img_size=ori_img_size)
                 point = point.to(device)
                 label = label.to(device)
-                # print(point.shape, label.shape)
                 point_prompts = (point, label)
-
             elif prompt_type == "bound_box":
                 tbox = boundBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
                 tbox = tbox.to(device)
                 box_prompts = tbox
-                # raise NotImplementedError
             elif prompt_type == "larger_box":
                 lbox = largerBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
                 lbox = lbox.to(device)
                 box_prompts = lbox
-                # raise NotImplementedError
             else:
                 raise NotImplementedError
             
-            # pred_mask, iou_predictions, low_res_masks = sam.predict_torch(point_coords=point, 
-            #                                                               point_labels=label, 
-            #                                                               multimask_output=False)
             sparse_embeddings, dense_embeddings = sam_model.prompt_encoder(points=point_prompts,
                                                                             boxes=box_prompts,
                                                                             masks=None)
@@ -175,15 +146,11 @@ for epoch in range(num_epochs):
 
         num_data += 1
         if num_data % num_size == 0 or num_data == len(tr_ds):
-            # log.info("Processed {} images".format(num_data))
             optimizer.zero_grad()
             training_loss = training_loss / num_size if num_data != len(tr_ds) else training_loss / (num_data % num_size)
             training_loss.backward()
             optimizer.step()
-            # log.info("Epoch: {}, batch: {}, loss: {}".format(epoch, idx, training_loss.item()))
             training_loss = 0.0
-    
-    # scheduler.step()
 
     tr_time = time.time() - tr_time
 
@@ -205,9 +172,6 @@ for epoch in range(num_epochs):
             temp_mask = mask.float()
             temp_mask = transform.apply_image_torch(temp_mask).contiguous()
 
-            # print(image.shape, mask.shape)
-
-            prompt_type = "center"        
             pred_mask = None
             point_prompts = None
             box_prompts = None
@@ -219,27 +183,20 @@ for epoch in range(num_epochs):
                 point = point.to(device)
                 label = label.to(device)
                 point_prompts = (point, label)
-
             elif prompt_type == "bound_box":
                 tbox = boundBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
                 tbox = tbox.to(device)
                 box_prompts = tbox
-                # raise NotImplementedError
             elif prompt_type == "larger_box":
                 lbox = largerBoxPromptb(sam_model, maskb=maskb, ori_img_size=ori_img_size)
                 lbox = lbox.to(device)
                 box_prompts = lbox
-                # raise NotImplementedError
             else:
                 raise NotImplementedError
             
-            # pred_mask, iou_predictions, low_res_masks = sam.predict_torch(point_coords=point, 
-            #                                                               point_labels=label, 
-            #                                                               multimask_output=False)
             sparse_embeddings, dense_embeddings = sam_model.prompt_encoder(points=point_prompts,
                                                                             boxes=box_prompts,
                                                                             masks=None)
-            # print(sparse_embeddings.shape, dense_embeddings.shape, sam_model.prompt_encoder.get_dense_pe().shape)
             img_pe = sam_model.prompt_encoder.get_dense_pe()
             sp_emb, den_emb = sam_model.prompt_encoder(points=point_prompts,
                                                         boxes=box_prompts,
