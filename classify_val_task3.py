@@ -46,8 +46,8 @@ sam_model.prompt_encoder.to(device)
 sam_model.prompt_encoder.eval()
 
 """define classifier"""
-check_epoch = 29
-checkpoint = torch.load("classifier_epoch_{}.pth".format(check_epoch))
+check = ""
+checkpoint = torch.load("classifier_{}.pth".format(check))
 cla_embed_dim = 256
 cla_transformer_dim = sam_model.mask_decoder.transformer_dim
 cla_transformer=TwoWayTransformer(
@@ -56,8 +56,10 @@ cla_transformer=TwoWayTransformer(
                 mlp_dim=2048,
                 num_heads=8,
             )
+use_den_emb = False
 classifier = MaskDecoderClassifier(transformer_dim=cla_transformer_dim, 
-                                   transformer=cla_transformer)
+                                   transformer=cla_transformer,
+                                   use_den_emb=use_den_emb)
 classifier.load_state_dict(state_dict=checkpoint, strict=False)
 classifier.to(device)
 log.info("Loaded model")
