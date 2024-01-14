@@ -1,7 +1,6 @@
 # final
 
 # task2: finetuning on BTCV
-# Last modification: 23/12/14
 
 import os, time, pickle, datetime
 import json

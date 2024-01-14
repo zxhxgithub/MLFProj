@@ -1,6 +1,5 @@
 # final
 
-# Last modification: 23/12/06
 import pickle, random
 import numpy as np
 
@@ -145,29 +144,3 @@ def largerBoxPromptb(sam_model, kind="larger_box", maskb=None, ori_img_size=(512
     lbox = transform.apply_boxes(lbox, ori_img_size)
     lbox = torch.as_tensor(lbox, dtype=torch.float)
     return lbox
-
-def normalize(img):
-    return (img - img.min()) / (img.max() - img.min())
-
-def visualize(image, pred, label, box=None, point=None):    
-    """
-    Visualization
-    """
-    fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-    ax[0].imshow(image)
-    ax[0].set_title("image")
-    
-    if box is not None:
-        ax[0].plot(
-            [box[0], box[0], box[2], box[2], box[0]],
-            [box[1], box[3], box[3], box[1], box[1]],
-            color="red",
-        )
-    if point is not None:
-        ax[0].plot(point[0], point[1], "ro", markersize=5)
-
-    ax[1].imshow(pred)
-    ax[1].set_title("prediction")
-    ax[2].imshow(label)
-    ax[2].set_title("label")
-    plt.savefig("vis.png")

@@ -1,7 +1,5 @@
 # final
 
-# Last modification: 23/12/10
-
 import pickle
 import numpy as np
 

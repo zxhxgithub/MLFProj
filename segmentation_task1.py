@@ -1,5 +1,6 @@
+# final
+
 # task1: segmentation on BTCV
-# Last modification: 23/12/10
 
 import os, time, pickle
 import json

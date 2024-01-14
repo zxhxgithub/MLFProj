@@ -1,7 +1,6 @@
 # final
 
 # task3: classify on BTCV
-# Last modification: 23/12/31
 
 import os, time, datetime
 import numpy as np
